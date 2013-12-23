@@ -68,18 +68,14 @@ if not context.isTempDocument() and to_url is None:\n
   use_activity = True\n
 \n
 if to_url is None:\n
-  if use_activity:\n
-    recipient = context.getDestinationValue()\n
-    to_url_list.append(formataddr((recipient.getTitle(), recipient.getDefaultEmailText())))\n
-  else:\n
-    to_email_list = []\n
-    for recipient in context.getDestinationValueList():\n
-      email = recipient.getDefaultEmailText()\n
-      if email:\n
-        to_email_list.append(email)\n
-        to_url_list.append(formataddr((recipient.getTitle(), recipient.getDefaultEmailText())))\n
-      else:\n
-        raise ValueError("One email must be set to %s" % recipient.getRelativeUrl())\n
+  for recipient in context.getDestinationValueList():\n
+    email = recipient.getDefaultEmailText()\n
+    if email:\n
+      to_url_list.append(formataddr((recipient.getTitle(), recipient.getDefaultEmailText())))\n
+    else:\n
+      # MailMessage portal type is supposed to have a constraint to report this\n
+      # to the user earlier\n
+      raise ValueError("One email must be set to %s" % recipient.getRelativeUrl())\n
 else:\n
   to_url_list.append(to_url)\n
 \n
