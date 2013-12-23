@@ -91,8 +91,9 @@ if download or not use_activity:\n
     # From\n
     if from_url is None:\n
       sender = context.getSourceValue()\n
-      from_url = formataddr((sender.getTitle(), sender.getDefaultEmailText()))\n
-      if not from_url:\n
+      if sender is not None:\n
+        from_url = formataddr((sender.getTitle(), sender.getDefaultEmailText()))\n
+      else:\n
         from_url = portal.portal_preferences.getPreferredEventSenderEmail()\n
         if not from_url:\n
           raise ValueError(\'Preferred Event Sender Email not configured\')\n
