@@ -33,6 +33,7 @@ from AccessControl import ClassSecurityInfo
 
 from Products.ERP5Type import Permissions, PropertySheet, interfaces
 from Products.ERP5.Document.Image import Image
+from Products.ERP5.Document.File import File
 from Products.ERP5.Document.Document import ConversionError
 from subprocess import Popen, PIPE
 from zLOG import LOG, INFO, PROBLEM
@@ -350,4 +351,6 @@ class PDFDocument(Image):
       del self._content_information
     except (AttributeError, KeyError):
       pass
-    Image._setFile(self, data, precondition=precondition)
+    # Use File._setFile because Image._setFile will guess image size & content
+    # type
+    File._setFile(self, data, precondition=precondition)
