@@ -202,6 +202,8 @@
                         <string>listbox_sale_supply_line_source_account</string>
                         <string>my_view_mode_supply_line_destination_title</string>
                         <string>my_view_mode_supply_line_source_title</string>
+                        <string>my_destination_function</string>
+                        <string>my_source_function</string>
                       </list>
                     </value>
                 </item>
