@@ -3,9 +3,9 @@ portal = context.getPortalObject()
 person = state_change['object']
 
 # check preferences and save only if set
-number_of_last_password_to_check = portal.portal_preferences.getPreferredNumberOfLastPasswordToCheck()
 
-if number_of_last_password_to_check is not None and number_of_last_password_to_check:
+if portal.portal_preferences.getPreferredNumberOfLastPasswordToCheck() or \
+    portal.portal_preferences.getPreferredMaxPasswordLifetimeDuration() is not None:
   # save password and modification date
   current_password = person.getPassword()
   if current_password is not None:
