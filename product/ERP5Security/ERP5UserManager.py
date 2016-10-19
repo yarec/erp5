@@ -191,18 +191,24 @@ class ERP5UserManager(BasePlugin):
       return None
     user = user_list[0]
 
-    if authentication_result is None:
-      # file a failed authentication attempt
-      user.notifyLoginFailure()
-      return None
+    try:
+      if authentication_result is None:
+        # file a failed authentication attempt
+        user.notifyLoginFailure()
+        return None
 
-    # check if password is expired
-    if user.isPasswordExpired():
-      user.notifyPasswordExpire()
-      return None
+      # check if password is expired
+      if user.isPasswordExpired():
+        user.notifyPasswordExpire()
+        return None
 
-    # check if user account is blocked
-    if user.isLoginBlocked():
+      # check if user account is blocked
+      if user.isLoginBlocked():
+        return None
+    except ConflictError:
+      raise
+    except Exception, e:
+      LOG('ERP5Security', PROBLEM, 'Error when processing authentication policy', error=sys.exc_info())
       return None
 
     return authentication_result
