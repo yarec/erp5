@@ -357,12 +357,13 @@ class CategoryTool( UniqueObject, Folder, Base ):
             bo_uid = self[my_base_category].getUid()
             uid_set.add((o.getUid(), bo_uid, 1)) # Strict Membership
             if not strict:
+              o = o.aq_parent
               while o.portal_type == 'Category':
                 # This goes up in the category tree
                 # XXX we should also go up in some other cases....
                 # ie. when some documents act as categories
-                o = o.aq_parent # We want acquisition here without aq_inner
                 uid_set.add((o.getUid(), bo_uid, 0)) # Non Strict Membership
+                o = o.aq_parent # We want acquisition here without aq_inner
         except (KeyError, AttributeError):
           LOG('WARNING: CategoriesTool',0, 'Unable to find uid for %s' % path)
       return list(uid_set) # cast to list for <dtml-in>
@@ -1632,17 +1633,23 @@ class CategoryTool( UniqueObject, Folder, Base ):
       sql_kw = {}
       if portal_type:
         sql_kw['portal_type'] = portal_type
-      if base_category is None:
-        base_category = context.getBaseCategoryId()
-      sql_kw[
-        (
-          'strict_'
-          if strict_membership or strict else
-          'default_'
-        ) +
-        base_category +
-        '_uid'
-      ] = context.getUid()
+      if context.portal_type == 'Base Category':
+        # Ignoring strict_membership, as there is no way to tell whether a
+        # document has a strict relation to a category (because there should
+        # be no need to).
+        sql_kw['category.base_category_uid'] = context.getUid()
+      else:
+        if base_category is None:
+          base_category = context.getBaseCategoryId()
+        sql_kw[
+          (
+            'strict_'
+            if strict_membership or strict else
+            'default_'
+          ) +
+          base_category +
+          '_uid'
+        ] = context.getUid()
       return self.getPortalObject().portal_catalog(**sql_kw)
 
     security.declareProtected( Permissions.AccessContentsInformation, 'getCategoryMemberItemList' )
