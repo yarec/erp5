@@ -42,7 +42,6 @@ class BaseCategory(CMFBaseCategory, XMLObject):
     """
     meta_type='ERP5 Base Category'
     portal_type='Base Category' # maybe useful some day
-    isCategory = ConstantGetter('isCategory', value=True)
     allowed_types = ('ERP5 Category', )
 
     # Declarative security

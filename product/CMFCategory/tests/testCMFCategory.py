@@ -333,7 +333,6 @@ class TestCMFCategory(ERP5TypeTestCase):
       [
         (cat2.getUid(), basecat.getUid(), 1),
         (cat1.getUid(), basecat.getUid(), 0),
-        (basecat.getUid(), basecat.getUid(), 0),
       ],
     )
     self.assertItemsEqual(
@@ -344,7 +343,6 @@ class TestCMFCategory(ERP5TypeTestCase):
         (cat22.getUid(), basecat.getUid(), 1),
         (cat2.getUid(), basecat.getUid(), 0),
         (cat1.getUid(), basecat.getUid(), 0),
-        (basecat.getUid(), basecat.getUid(), 0),
       ],
     )
     # Non-canonical path
@@ -356,7 +354,6 @@ class TestCMFCategory(ERP5TypeTestCase):
         (cat3.getUid(), basecat.getUid(), 1),
         (cat2.getUid(), basecat.getUid(), 0),
         (cat1.getUid(), basecat.getUid(), 0),
-        (basecat.getUid(), basecat.getUid(), 0),
       ],
     )
     # Strict, implicit base category
@@ -378,7 +375,6 @@ class TestCMFCategory(ERP5TypeTestCase):
       [
         (cat2.getUid(), basecat2.getUid(), 1),
         (cat1.getUid(), basecat2.getUid(), 0),
-        (basecat.getUid(), basecat2.getUid(), 0),
       ],
     )
     # Strict, explicit base category
@@ -607,31 +603,25 @@ class TestCMFCategory(ERP5TypeTestCase):
   def test_16_GetRelatedValues(self):
     """ Checks on getting related values"""
     pc = self.getCategoriesTool()
-    bc = pc.newContent(portal_type='Base Category', id='related_value_test')
-    self.assertTrue(bc is not None)
-    self.tic()
-    # A newly created base category should be referred to only by itself
-    value_list = pc.getRelatedValueList(bc)
-    self.assertEqual(len(value_list), 1)
-
-    c = bc.newContent(portal_type='Category', id='1')
-    self.assertTrue(c is not None)
-    self.tic()
-    value_list = pc.getRelatedValueList(bc)
-    # Now the base category should be referred to by itself and this sub category
-    self.assertEqual(len(value_list), 2)
-    # This sub category should be referred to only by itself
-    value_list = pc.getRelatedValueList(c)
-    self.assertEqual(len(value_list), 1)
-
-    #test _getDefaultRelatedProperty Accessor
-    person = self.portal.person_module.newContent(id='person_test')
+    bc = pc.newContent(
+      portal_type='Base Category',
+      id='related_value_test',
+    )
+    c = bc.newContent(
+      portal_type='Category',
+    )
+    person = self.portal.person_module.newContent()
     org = self.portal.organisation_module.newContent(
-                                  id='organisation_test',
-                                  destination='person_module/person_test')
+      destination_value_list=[
+        person,
+        bc, # Bad relation, on purpose.
+      ],
+    )
     self.tic()
-    self.assertEqual(person.getDefaultDestinationRelated(),
-                                  'organisation_module/organisation_test' )
+    self.assertItemsEqual(pc.getRelatedValueList(c), [c])
+    self.assertItemsEqual(pc.getRelatedValueList(person), [org])
+    self.assertEqual(person.getDefaultDestinationRelated(), org.getRelativeUrl())
+    self.assertItemsEqual(pc.getRelatedValueList(pc), []) # org and c must not be found
 
   def test_17_CategoriesAndDomainSelection(self):
     """ Tests Categories and Domain Selection """
