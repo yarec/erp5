@@ -34,26 +34,36 @@
  <key>stock_explanation_title | catalog/title/z_related_explanation_from_stock</key>
  <key>stock_explanation_translated_portal_type | catalog,translation/translated_message/z_related_explanation_translated_portal_type_from_stock</key>
  <key>stock_function_category_strict_membership_uid | category/category_uid/z_related_strict_membership_function_uid_from_stock</key>
+ <key>stock_function_base_category_uid | category/base_category_uid/z_related_strict_membership_function_uid_from_stock</key>
  <key>stock_function_category_uid | category/category_uid/z_related_function_uid_from_stock</key>
  <key>stock_funding_category_strict_membership_uid | category/category_uid/z_related_strict_membership_funding_uid_from_stock</key>
+ <key>stock_funding_base_category_uid | category/base_category_uid/z_related_strict_membership_funding_uid_from_stock</key>
  <key>stock_funding_category_uid | category/category_uid/z_related_funding_uid_from_stock</key>
  <key>stock_ledger_category_strict_membership_uid | category/category_uid/z_related_strict_membership_ledger_uid_from_stock</key>
+ <key>stock_ledger_base_category_uid | category/base_category_uid/z_related_strict_membership_ledger_uid_from_stock</key>
  <key>stock_ledger_category_uid | category/category_uid/z_related_ledger_uid_from_stock</key>
  <key>stock_mirror_section_category_strict_membership_uid | category/category_uid/z_related_strict_membership_mirror_section_uid_from_stock</key>
+ <key>stock_mirror_section_base_category_uid | category/base_category_uid/z_related_strict_membership_mirror_section_uid_from_stock</key>
  <key>stock_mirror_section_category_uid | category/category_uid/z_related_mirror_section_uid_from_stock</key>
  <key>stock_mirror_section_title | catalog/title/z_related_mirror_section_uid_from_stock</key>
  <key>stock_node_category_strict_membership_uid | category/category_uid/z_related_strict_membership_node_uid_from_stock</key>
+ <key>stock_node_base_category_uid | category/base_category_uid/z_related_strict_membership_node_uid_from_stock</key>
  <key>stock_node_category_uid | category/category_uid/z_related_node_uid_from_stock</key>
  <key>stock_node_title | catalog/title/z_related_node_uid_from_stock</key>
  <key>stock_payment_category_strict_membership_uid | category/category_uid/z_related_strict_membership_payment_uid_from_stock</key>
+ <key>stock_payment_base_category_uid | category/base_category_uid/z_related_strict_membership_payment_uid_from_stock</key>
  <key>stock_payment_category_uid | category/category_uid/z_related_payment_uid_from_stock</key>
  <key>stock_payment_request_category_strict_membership_uid | category/category_uid/z_related_strict_membership_payment_request_uid_from_stock</key>
+ <key>stock_payment_request_base_category_uid | category/base_category_uid/z_related_strict_membership_payment_request_uid_from_stock</key>
  <key>stock_payment_request_category_uid | category/category_uid/z_related_payment_request_uid_from_stock</key>
  <key>stock_project_category_strict_membership_uid | category/category_uid/z_related_strict_membership_project_uid_from_stock</key>
+ <key>stock_project_base_category_uid | category/base_category_uid/z_related_strict_membership_project_uid_from_stock</key>
  <key>stock_project_category_uid | category/category_uid/z_related_project_uid_from_stock</key>
  <key>stock_resource_category_strict_membership_uid | category/category_uid/z_related_strict_membership_resource_uid_from_stock</key>
+ <key>stock_resource_base_category_uid | category/base_category_uid/z_related_strict_membership_resource_uid_from_stock</key>
  <key>stock_resource_category_uid | category/category_uid/z_related_resource_uid_from_stock</key>
  <key>stock_section_category_strict_membership_uid | category/category_uid/z_related_strict_membership_section_uid_from_stock</key>
+ <key>stock_section_base_category_uid | category/base_category_uid/z_related_strict_membership_section_uid_from_stock</key>
  <key>stock_section_category_uid | category/category_uid/z_related_section_uid_from_stock</key>
  <key>subject | versioning,subject/subject/z_related_subject</key>
  <key>translated_causality_state | translation/translated_message/z_related_translated_causality_state</key>

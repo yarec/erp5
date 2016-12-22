@@ -186,6 +186,57 @@ class SimulationTool(BaseTool):
     #######################################################
     # Stock Management
 
+    def _baseGeneratePropertyUidList(self, append, prop, as_text=False):
+      category_tool = getToolByName(self, 'portal_categories')
+      if isinstance(prop, str):
+        if not as_text:
+          prop_value = category_tool.getCategoryValue(prop)
+          if prop_value is None:
+            raise ValueError, 'Category %s does not exists' % prop
+          append(prop_value)
+        else:
+          append(prop)
+      elif isinstance(prop, (list, tuple)):
+        for property_item in prop :
+          if not as_text:
+            prop_value = category_tool.getCategoryValue(property_item)
+            if prop_value is None:
+              raise ValueError, 'Category %s does not exists' % property_item
+            append(prop_value)
+          else:
+            append(property_item)
+
+    def _generatePropertyUidListPair(self, prop):
+      category_uid_list = []
+      base_category_uid_list = []
+      _getPortalType = lambda: None
+      def append(value):
+        getPortalType = getattr(value, 'getPortalType', None)
+        if getPortalType is None:
+          # An uid, assume caller did not pass a Base Category uid
+          category_uid_list.append(value)
+        else:
+          (
+            base_category_uid_list
+            if getPortalType() == 'Base Category' else
+            category_uid_list
+          ).append(value.getUid())
+      if isinstance(prop, dict):
+        self._baseGeneratePropertyUidList(append, prop['query'])
+        if category_uid_list:
+          category_uid_list = {
+            'operator': prop['operator'],
+            'query': category_uid_list,
+          }
+        if base_category_uid_list:
+          base_category_uid_list = {
+            'operator': prop['operator'],
+            'query': base_category_uid_list,
+          }
+      else:
+        self._baseGeneratePropertyUidList(append, prop)
+      return category_uid_list, base_category_uid_list
+
     def _generatePropertyUidList(self, prop, as_text=0):
       """
       converts relative_url or text (single element or list or dict)
@@ -194,43 +245,19 @@ class SimulationTool(BaseTool):
       as_text == 0: tries to lookup an uid from the relative_url
       as_text == 1: directly passes the argument as text
       """
-      if prop is None :
-        return []
-      category_tool = getToolByName(self, 'portal_categories')
       property_uid_list = []
-      if isinstance(prop, str):
-        if not as_text:
-          prop_value = category_tool.getCategoryValue(prop)
-          if prop_value is None:
-            raise ValueError, 'Category %s does not exists' % prop
-          property_uid_list.append(prop_value.getUid())
-        else:
-          property_uid_list.append(prop)
-      elif isinstance(prop, (list, tuple)):
-        for property_item in prop :
-          if not as_text:
-            prop_value = category_tool.getCategoryValue(property_item)
-            if prop_value is None:
-              raise ValueError, 'Category %s does not exists' % property_item
-            property_uid_list.append(prop_value.getUid())
-          else:
-            property_uid_list.append(property_item)
-      elif isinstance(prop, dict):
-        tmp_uid_list = []
-        if isinstance(prop['query'], str):
-          prop['query'] = [prop['query']]
-        for property_item in prop['query'] :
-          if not as_text:
-            prop_value = category_tool.getCategoryValue(property_item)
-            if prop_value is None:
-              raise ValueError, 'Category %s does not exists' % property_item
-            tmp_uid_list.append(prop_value.getUid())
-          else:
-            tmp_uid_list.append(property_item)
-        if tmp_uid_list:
-          property_uid_list = {}
-          property_uid_list['operator'] = prop['operator']
-          property_uid_list['query'] = tmp_uid_list
+      _append = property_uid_list.append
+      def append(value):
+        _append(getattr(value, 'getUid', lambda: value)())
+      if isinstance(prop, dict):
+        self._baseGeneratePropertyUidList(append, prop['query'], as_text=as_text)
+        if property_uid_list:
+          property_uid_list = {
+            'operator': prop['operator'],
+            'query': property_uid_list,
+          }
+      else:
+        self._baseGeneratePropertyUidList(append, prop, as_text=as_text)
       return property_uid_list
 
     def _getSimulationStateQuery(self, **kw):
@@ -626,7 +653,31 @@ class SimulationTool(BaseTool):
 
         def setUIDList(dictionary, key, value, as_text=0):
           uid_list = self._generatePropertyUidList(value, as_text=as_text)
-          return dictionary.set(key, uid_list)
+          dictionary.set(key, uid_list)
+
+        def setRelationUIDList(dictionary, base_category, value):
+          """
+          A Base Category may be requested for non-strict relationships.
+          In such case, match against base_category_uid and not category_uid
+          in category table.
+          """
+          uid_list, base_uid_list = self._generatePropertyUidListPair(value)
+          if uid_list and base_uid_list:
+            dictionary.set(
+              base_category,
+              ComplexQuery(
+                SimpleQuery(
+                  **{base_category + '_category_uid': uid_list}
+                ),
+                SimpleQuery(
+                  **{base_category + '_base_category_uid': base_uid_list}
+                ),
+                logical_operator='OR',
+              )
+            )
+          else:
+            dictionary.set(base_category + '_category_uid', uid_list)
+            dictionary.set(base_category + '_base_category_uid', base_uid_list)
 
       column_value_dict = DictMixIn()
 
@@ -686,17 +737,16 @@ class SimulationTool(BaseTool):
 
       related_key_dict = DictMixIn()
       # category membership
-      related_key_dict.setUIDList('resource_category_uid', resource_category)
-      related_key_dict.setUIDList('node_category_uid', node_category)
-      related_key_dict.setUIDList('project_category_uid', project_category)
-      related_key_dict.setUIDList('funding_category_uid', funding_category)
-      related_key_dict.setUIDList('ledger_category_uid', ledger_category)
-      related_key_dict.setUIDList('payment_request_category_uid', payment_request_category)
-      related_key_dict.setUIDList('function_category_uid', function_category)
-      related_key_dict.setUIDList('payment_category_uid', payment_category)
-      related_key_dict.setUIDList('section_category_uid', section_category)
-      related_key_dict.setUIDList('mirror_section_category_uid',
-                                  mirror_section_category)
+      related_key_dict.setRelationUIDList('resource', resource_category)
+      related_key_dict.setRelationUIDList('node', node_category)
+      related_key_dict.setRelationUIDList('project', project_category)
+      related_key_dict.setRelationUIDList('funding', funding_category)
+      related_key_dict.setRelationUIDList('ledger', ledger_category)
+      related_key_dict.setRelationUIDList('payment_request', payment_request_category)
+      related_key_dict.setRelationUIDList('function', function_category)
+      related_key_dict.setRelationUIDList('payment', payment_category)
+      related_key_dict.setRelationUIDList('section', section_category)
+      related_key_dict.setRelationUIDList('mirror_section', mirror_section_category)
       # category strict membership
       related_key_dict.setUIDList('resource_category_strict_membership_uid',
                                   resource_category_strict_membership)
